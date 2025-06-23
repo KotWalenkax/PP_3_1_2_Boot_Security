@@ -10,6 +10,6 @@ public interface AdminService {
     void delete(Long id);
     User get(Long id);
     List<User> getAllUsers();
-    void set(Long id, User newUser);
+    void update(Long id, User newUser);
     UserDetails loadUserByLogin(String username);
 }

@@ -6,6 +6,7 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.kata.spring.boot_security.demo.model.User;
 import ru.kata.spring.boot_security.demo.repository.UserRepository;
 
+import javax.persistence.EntityNotFoundException;
 import java.util.List;
 
 @Service
@@ -25,12 +26,15 @@ public class AdminServiceImpl implements AdminService {
     @Override
     public void delete(Long id) {
         User user = get(id);
+        if (user == null) {
+            throw new EntityNotFoundException("User with id " + id + " not found");
+        }
         userRepository.delete(user);
     }
 
     @Override
     public User get(Long id) {
-        return userRepository.getById(id);
+        return userRepository.findById(id).orElse(null);
     }
 
     @Override
@@ -39,12 +43,25 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
-    public void set(Long id, User newUser) {
-        userRepository.saveAndFlush(newUser);
+    public void update(Long id, User updatedUser) {
+        User existingUser = get(id);
+        if (existingUser != null) {
+            existingUser.setUsername(updatedUser.getUsername());
+            existingUser.setPassword(updatedUser.getPassword());
+            existingUser.setName(updatedUser.getName());
+            existingUser.setSurname(updatedUser.getSurname());
+            existingUser.setRoles(updatedUser.getRoles());
+            userRepository.save(existingUser);
+        }
     }
 
     @Override
+    @Transactional(readOnly = true)
     public UserDetails loadUserByLogin(String username) {
-        return userRepository.findByUsername(username);
+        User user = userRepository.findByUsername(username);
+        if (user != null) {
+            user.getRoles().size(); // Инициируем загрузку ролей
+        }
+        return user;
     }
 }

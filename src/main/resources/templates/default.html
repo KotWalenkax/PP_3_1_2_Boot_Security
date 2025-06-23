@@ -1,47 +1,39 @@
 <!DOCTYPE html>
-
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
-<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>Users List</title>
 </head>
 <body>
 <table>
     <tr>
-        <th>id</th>
+        <th>ID</th>
         <th>Name</th>
-        <th>LastName</th>
+        <th>Last Name</th>
         <th>Login</th>
         <th>Roles</th>
-
+        <th>Actions</th>
     </tr>
-    <tr th:each="user : ${attribute}">
-
-        <td th:utext="${user.id}"></td>
-        <td th:utext="${user.name}"></td>
-        <td th:utext="${user.surname}"></td>
-        <td th:utext="${user.username}"></td>
-        <td th:utext="${user.getRolesToString()}"></td>
+    <tr th:each="user : ${users}">
+        <td th:text="${user.id}"></td>
+        <td th:text="${user.name}"></td>
+        <td th:text="${user.surname}"></td>
+        <td th:text="${user.username}"></td>
+        <td th:text="${user.getRolesToString()}"></td>
         <td>
-            <a th:href="@{'/edit/' + ${user.id}}">Edit</a>
-        </td>
-        <td>
+            <a th:href="@{'/edit/' + ${user.id}}">Edit</a> |
             <a th:href="@{'/delete/' + ${user.id}}">Delete</a>
         </td>
-
     </tr>
 </table>
 
 <br>
-<a th:href="@{/addNewUser}">Add</a>
+<a th:href="@{/addNewUser}">Add New User</a>
 <br>
 <a th:href="@{/myInfo}">My info</a>
 <br>
 <form th:action="@{/logout}" method="post">
     <button type="submit">Logout</button>
 </form>
-
-
 </body>
 </html>
