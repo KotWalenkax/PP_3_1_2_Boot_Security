@@ -58,10 +58,6 @@ public class AdminServiceImpl implements AdminService {
     @Override
     @Transactional(readOnly = true)
     public UserDetails loadUserByLogin(String username) {
-        User user = userRepository.findByUsername(username);
-        if (user != null) {
-            user.getRoles().size(); // Инициируем загрузку ролей
-        }
-        return user;
+        return userRepository.findByUsername(username);
     }
 }
