@@ -6,10 +6,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.ModelAndView;
 import ru.kata.spring.boot_security.demo.model.Role;
 import ru.kata.spring.boot_security.demo.model.User;
-import ru.kata.spring.boot_security.demo.service.AdminService;
+import ru.kata.spring.boot_security.demo.service.UserService;
 import ru.kata.spring.boot_security.demo.service.RoleService;
 
 import java.security.Principal;
@@ -22,18 +21,18 @@ import java.util.Set;
 @PreAuthorize("hasAuthority('ADMIN')")
 public class AdminController {
 
-    private final AdminService adminService;
+    private final UserService userService;
     private final RoleService roleService;
 
     @Autowired
-    public AdminController(AdminService adminService, RoleService roleService) {
-        this.adminService = adminService;
+    public AdminController(UserService userService, RoleService roleService) {
+        this.userService = userService;
         this.roleService = roleService;
     }
 
     @GetMapping("/admin")
     public String showAllUsers(Model model) {
-        List<User> list = adminService.getAllUsers();
+        List<User> list = userService.getAllUsers();
         model.addAttribute("users", list);
         model.addAttribute("allRoles", roleService.getAllRoles());
         return "default";
@@ -54,13 +53,13 @@ public class AdminController {
             roleSet.add(roleService.getRoleById(roleId));
         }
         user.setRoles(roleSet);
-        adminService.add(user);
+        userService.add(user);
         return "redirect:/admin";
     }
 
     @GetMapping("/edit/{id}")
     public String showEditProductForm(@PathVariable(name = "id") Long id, Model model) {
-        User user = adminService.get(id);
+        User user = userService.get(id);
         model.addAttribute("user", user);
         model.addAttribute("allRoles", roleService.getAllRoles());
         return "edit";
@@ -75,7 +74,7 @@ public class AdminController {
             roleSet.add(roleService.getRoleById(roleId));
         }
         user.setRoles(roleSet);
-        adminService.update(id, user);
+        userService.update(id, user);
         return "redirect:/admin";
     }
 
@@ -83,13 +82,13 @@ public class AdminController {
     @GetMapping("/delete/{id}")
     @Transactional
     public String delete(@PathVariable(name = "id") Long id) {
-        adminService.delete(id);
+        userService.delete(id);
         return "redirect:/admin";
     }
 
     @GetMapping("/myInfo")
     public String showUserInfo(Principal principal, Model model) {
-        model.addAttribute("user", adminService.loadUserByLogin(principal.getName()));
+        model.addAttribute("user", userService.loadUserByLogin(principal.getName()));
         return "admin-info";
     }
 

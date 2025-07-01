@@ -5,7 +5,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
 import ru.kata.spring.boot_security.demo.model.Role;
 import ru.kata.spring.boot_security.demo.model.User;
-import ru.kata.spring.boot_security.demo.service.AdminService;
+import ru.kata.spring.boot_security.demo.service.UserService;
 import ru.kata.spring.boot_security.demo.service.RoleService;
 
 import javax.annotation.PostConstruct;
@@ -15,12 +15,12 @@ import java.util.Set;
 @Component
 public class DBInit {
 
-    private final AdminService adminService;
+    private final UserService userService;
     private final RoleService roleService;
 
     @Autowired
-    public DBInit(AdminService adminService, RoleService roleService) {
-        this.adminService = adminService;
+    public DBInit(UserService userService, RoleService roleService) {
+        this.userService = userService;
         this.roleService = roleService;
     }
 
@@ -39,7 +39,7 @@ public class DBInit {
 
         User user1 = new User(1L, "Admin", "LastAdmin", "postgres", new BCryptPasswordEncoder(8).encode("2288"), set);
 
-        adminService.add(user1);
+        userService.add(user1);
     }
 
 }

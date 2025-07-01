@@ -11,10 +11,10 @@ import java.util.List;
 
 @Service
 @Transactional
-public class AdminServiceImpl implements AdminService {
+public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
 
-    public AdminServiceImpl(UserRepository userRepository) {
+    public UserServiceImpl(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
 
