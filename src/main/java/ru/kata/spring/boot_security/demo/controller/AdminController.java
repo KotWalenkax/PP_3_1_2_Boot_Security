@@ -67,42 +67,15 @@ public class AdminController {
 
     @PostMapping("/update/{id}")
     public String editUser(@ModelAttribute("user") User user,
-                           @PathVariable Long id,
-                           @RequestParam Set<Long> roles) {
-        Set<Role> roleSet = new HashSet<>();
-        for (Long roleId : roles) {
-            roleSet.add(roleService.getRoleById(roleId));
-        }
-        user.setRoles(roleSet);
+                           @PathVariable Long id) {
         userService.update(id, user);
         return "redirect:/admin";
     }
-
 
     @GetMapping("/delete/{id}")
     @Transactional
     public String delete(@PathVariable(name = "id") Long id) {
         userService.delete(id);
         return "redirect:/admin";
-    }
-
-    @GetMapping("/myInfo")
-    public String showUserInfo(Principal principal, Model model) {
-        model.addAttribute("user", userService.loadUserByLogin(principal.getName()));
-        return "admin-info";
-    }
-
-    @ModelAttribute("hasRole")
-    public boolean hasRole(@RequestParam(value = "userId", required = false) Long userId,
-                           Principal principal,
-                           @ModelAttribute("user") User user,
-                           @RequestParam(value = "roleId", required = false) Long roleId) {
-        if (roleId == null) return false;
-
-        if (user != null && user.getRoles() != null) {
-            return user.getRoles().stream().anyMatch(r -> r.getId().equals(roleId));
-        }
-
-        return false;
     }
 }
