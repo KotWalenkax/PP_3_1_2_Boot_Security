@@ -1,37 +1,63 @@
 <!DOCTYPE html>
-<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <title>Edit User</title>
 </head>
-<body>
-<form th:method="POST" th:action="@{/update/{id}(id=${user.id})}" th:object="${user}">
+<body class="bg-light">
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">Edit User</h4>
+                </div>
+                <div class="card-body">
+                    <form th:method="POST" th:action="@{/update/{id}(id=${user.id})}" th:object="${user}">
+                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
 
-    <label for="name">Name:</label>
-    <input type="text" th:field="*{name}" id="name" required>
-    <br>
+                        <div class="mb-3">
+                            <label for="name" class="form-label">Name:</label>
+                            <input type="text" class="form-control" th:field="*{name}" id="name" required>
+                        </div>
 
-    <label for="lastName">Last Name:</label>
-    <input type="text" th:field="*{surname}" id="lastName" required>
-    <br>
+                        <div class="mb-3">
+                            <label for="lastName" class="form-label">Last Name:</label>
+                            <input type="text" class="form-control" th:field="*{surname}" id="lastName" required>
+                        </div>
 
-    <label for="login">Login:</label>
-    <input type="text" th:field="*{username}" id="login" required>
-    <br>
+                        <div class="mb-3">
+                            <label for="login" class="form-label">Login:</label>
+                            <input type="text" class="form-control" th:field="*{username}" id="login" required>
+                        </div>
 
-    <label for="password">Password:</label>
-    <input type="password" th:field="*{password}" id="password" required>
-    <br>
+                        <div class="mb-3">
+                            <label for="password" class="form-label">Password:</label>
+                            <input type="password" class="form-control" th:field="*{password}" id="password" required>
+                        </div>
 
-    <label>Roles:</label><br>
-    <div th:each="role : ${allRoles}">
-        <input type="checkbox" name="roles" th:value="${role.id}"
-               th:checked="${user.roles.?[id == role.id].size() > 0}"
-               id="role_${role.id}">
-        <label th:for="'role_' + ${role.id}" th:text="${role.name}"></label><br>
+                        <div class="mb-3">
+                            <label class="form-label">Roles:</label><br>
+                            <div th:each="role : ${allRoles}" class="form-check">
+                                <input class="form-check-input" type="checkbox" name="roles" th:value="${role.id}"
+                                       th:checked="${user.roles.?[id == role.id].size() > 0}"
+                                       id="role_${role.id}">
+                                <label class="form-check-label" th:for="'role_' + ${role.id}" th:text="${role.name}"></label>
+                            </div>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary">Save</button>
+                            <a th:href="@{/admin}" class="btn btn-secondary">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
     </div>
-
-    <br>
-    <input type="submit" value="Save">
-</form>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 </body>
+</html>

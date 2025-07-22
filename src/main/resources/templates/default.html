@@ -1,39 +1,87 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org" xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity5">
 <head>
     <meta charset="UTF-8">
-    <title>Users List</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <title>Admin Panel</title>
 </head>
-<body>
-<table>
-    <tr>
-        <th>ID</th>
-        <th>Name</th>
-        <th>Last Name</th>
-        <th>Login</th>
-        <th>Roles</th>
-        <th>Actions</th>
-    </tr>
-    <tr th:each="user : ${users}">
-        <td th:text="${user.id}"></td>
-        <td th:text="${user.name}"></td>
-        <td th:text="${user.surname}"></td>
-        <td th:text="${user.username}"></td>
-        <td th:text="${user.getRolesToString()}"></td>
-        <td>
-            <a th:href="@{'/edit/' + ${user.id}}">Edit</a> |
-            <a th:href="@{'/delete/' + ${user.id}}">Delete</a>
-        </td>
-    </tr>
-</table>
+<body class="bg-light">
 
-<br>
-<a th:href="@{/addNewUser}">Add New User</a>
-<br>
-<a th:href="@{/myInfo}">My info</a>
-<br>
-<form th:action="@{/logout}" method="post">
-    <button type="submit">Logout</button>
-</form>
+<header class="header navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-1">
+    <div class="navbar-brand col-md-3 col-lg-2 me-0 px-3 fs-6">
+        <div class="d-inline h5 fw-bold">
+            <span sec:authentication="name">Username</span>
+        </div>
+        <div class="d-inline h5 fw-light">
+            <span>with roles:</span>
+        </div>
+        <div class="d-inline h5 fw-light" sec:authentication="principal.authorities">
+            <span th:each="role : ${#authentication.principal.authorities}"
+                  th:text="${#strings.substringAfter(role, 'ROLE_')} + ' '">Role</span>
+        </div>
+    </div>
+    <div class="navbar-nav">
+        <div class="nav-item text-nowrap">
+            <form th:action="@{/logout}" method="post">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                <button type="submit" class="btn btn-link nav-link px-3">Logout</button>
+            </form>
+        </div>
+    </div>
+</header>
+
+<div class="container-fluid">
+    <div class="row">
+        <nav class="d-grid nav nav-pills flex-column col-md-3 col-xl-2 d-md-block px-0 pt-2 bg-white">
+            <div class="position-sticky" style="height: calc(100vh - 48px); overflow-x: hidden;">
+                <a class="nav-link active" href="/admin">Admin</a>
+                <a class="nav-link" href="/user">User</a>
+            </div>
+        </nav>
+
+        <main class="col-md-9 col-xl-10 ms-sm-auto bg-light px-md-4 pt-2">
+            <div class="row row-cols-1">
+                <div class="col">
+                    <h1>Users List</h1>
+                    <div class="col border rounded-top ps-3 py-2">
+                        <h4 class="m-0">All users</h4>
+                    </div>
+                    <div class="col bg-white border border-top-0 rounded-bottom p-3">
+                        <table class="table table-striped align-middle">
+                            <thead class="border-top">
+                            <tr>
+                                <th scope="col">ID</th>
+                                <th scope="col">Name</th>
+                                <th scope="col">Last Name</th>
+                                <th scope="col">Login</th>
+                                <th scope="col">Roles</th>
+                                <th scope="col">Actions</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="user : ${users}">
+                                <td th:text="${user.id}"></td>
+                                <td th:text="${user.name}"></td>
+                                <td th:text="${user.surname}"></td>
+                                <td th:text="${user.username}"></td>
+                                <td th:text="${user.getRolesToString()}"></td>
+                                <td>
+                                    <a th:href="@{'/edit/' + ${user.id}}" class="btn btn-success btn-sm">Edit</a>
+                                    <a th:href="@{'/delete/' + ${user.id}}" class="btn btn-danger btn-sm">Delete</a>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <br>
+            <a th:href="@{/addNewUser}" class="btn btn-primary">Add New User</a>
+        </main>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
