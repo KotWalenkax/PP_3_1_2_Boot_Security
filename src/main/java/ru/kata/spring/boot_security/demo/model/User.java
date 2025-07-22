@@ -1,5 +1,7 @@
 package ru.kata.spring.boot_security.demo.model;
 
+import com.fasterxml.jackson.annotation.JsonGetter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -7,6 +9,7 @@ import javax.persistence.*;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "users")
@@ -63,6 +66,11 @@ public class User implements UserDetails {
         return id;
     }
 
+    @JsonGetter("roles")
+    public Set<String> getRoleNames() {
+        return roles.stream().map(Role::getName).collect(Collectors.toSet());
+    }
+
     public Set<Role> getRoles() {
         return roles;
     }
@@ -81,6 +89,7 @@ public class User implements UserDetails {
         return getRoles();
     }
 
+    @JsonIgnore
     @Override
     public String getPassword() {
         return password;

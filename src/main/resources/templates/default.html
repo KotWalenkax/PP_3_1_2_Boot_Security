@@ -48,7 +48,10 @@
                         <h4 class="m-0">All users</h4>
                     </div>
                     <div class="col bg-white border border-top-0 rounded-bottom p-3">
-                        <table class="table table-striped align-middle">
+                        <button type="button" class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#addUserModal">
+                            Add New User
+                        </button>
+                        <table class="table table-striped align-middle" id="usersTable">
                             <thead class="border-top">
                             <tr>
                                 <th scope="col">ID</th>
@@ -60,28 +63,254 @@
                             </tr>
                             </thead>
                             <tbody>
-                            <tr th:each="user : ${users}">
-                                <td th:text="${user.id}"></td>
-                                <td th:text="${user.name}"></td>
-                                <td th:text="${user.surname}"></td>
-                                <td th:text="${user.username}"></td>
-                                <td th:text="${user.getRolesToString()}"></td>
-                                <td>
-                                    <a th:href="@{'/edit/' + ${user.id}}" class="btn btn-success btn-sm">Edit</a>
-                                    <a th:href="@{'/delete/' + ${user.id}}" class="btn btn-danger btn-sm">Delete</a>
-                                </td>
-                            </tr>
+                            <!-- Will be populated by JavaScript -->
                             </tbody>
                         </table>
                     </div>
                 </div>
             </div>
-            <br>
-            <a th:href="@{/addNewUser}" class="btn btn-primary">Add New User</a>
         </main>
     </div>
 </div>
 
+<!-- Add User Modal -->
+<div class="modal fade" id="addUserModal" tabindex="-1" aria-labelledby="addUserModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addUserModalLabel">Add New User</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="addUserForm">
+                    <div class="mb-3">
+                        <label for="name" class="form-label">Name:</label>
+                        <input type="text" class="form-control" id="name" name="name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="surname" class="form-label">Last Name:</label>
+                        <input type="text" class="form-control" id="surname" name="surname" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="username" class="form-label">Login:</label>
+                        <input type="text" class="form-control" id="username" name="username" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Password:</label>
+                        <input type="password" class="form-control" id="password" name="password" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Roles:</label><br>
+                        <div id="rolesContainer">
+                            <!-- Will be populated by JavaScript -->
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary">Save</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit User Modal -->
+<div class="modal fade" id="editUserModal" tabindex="-1" aria-labelledby="editUserModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editUserModalLabel">Edit User</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editUserForm">
+                    <input type="hidden" id="editId" name="id">
+                    <div class="mb-3">
+                        <label for="editName" class="form-label">Name:</label>
+                        <input type="text" class="form-control" id="editName" name="name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editSurname" class="form-label">Last Name:</label>
+                        <input type="text" class="form-control" id="editSurname" name="surname" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editUsername" class="form-label">Login:</label>
+                        <input type="text" class="form-control" id="editUsername" name="username" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editPassword" class="form-label">Password:</label>
+                        <input type="password" class="form-control" id="editPassword" name="password" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Roles:</label><br>
+                        <div id="editRolesContainer">
+                            <!-- Will be populated by JavaScript -->
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary">Save</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function() {
+        // Load users and roles when page loads
+        loadUsers();
+        loadRoles();
+
+        // Add user form submission
+        $('#addUserForm').submit(function(e) {
+            e.preventDefault();
+            const formData = {
+                name: $('#name').val(),
+                surname: $('#surname').val(),
+                username: $('#username').val(),
+                password: $('#password').val(),
+                roles: getSelectedRoles('addUserForm')
+            };
+
+            $.ajax({
+                url: '/api/users',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(formData),
+                success: function() {
+                    $('#addUserModal').modal('hide');
+                    loadUsers();
+                    this.reset();
+                }.bind(this)
+            });
+        });
+
+        // Edit user form submission
+        $('#editUserForm').submit(function(e) {
+            e.preventDefault();
+            const userId = $('#editId').val();
+            const formData = {
+                name: $('#editName').val(),
+                surname: $('#editSurname').val(),
+                username: $('#editUsername').val(),
+                password: $('#editPassword').val(),
+                roles: getSelectedRoles('editUserForm')
+            };
+
+            $.ajax({
+                url: '/api/users/' + userId,
+                type: 'PUT',
+                contentType: 'application/json',
+                data: JSON.stringify(formData),
+                success: function() {
+                    $('#editUserModal').modal('hide');
+                    loadUsers();
+                }
+            });
+        });
+
+        // Delete user
+        $(document).on('click', '.delete-btn', function() {
+            if (confirm('Are you sure you want to delete this user?')) {
+                const userId = $(this).data('id');
+                $.ajax({
+                    url: '/api/users/' + userId,
+                    type: 'DELETE',
+                    success: function() {
+                        loadUsers();
+                    }
+                });
+            }
+        });
+
+        // Load users from API
+        function loadUsers() {
+            $.get('/api/users', function(users) {
+                const tableBody = $('#usersTable tbody');
+                tableBody.empty();
+
+                users.forEach(user => {
+                    const roles = user.roles.map(role => role.replace('ROLE_', '')).join(', ');
+                    const row = `
+                    <tr>
+                        <td>${user.id}</td>
+                        <td>${user.name}</td>
+                        <td>${user.surname}</td>
+                        <td>${user.username}</td>
+                        <td>${roles}</td>
+                        <td>
+                            <button class="btn btn-success btn-sm edit-btn" data-id="${user.id}">Edit</button>
+                            <button class="btn btn-danger btn-sm delete-btn" data-id="${user.id}">Delete</button>
+                        </td>
+                    </tr>
+                `;
+                    tableBody.append(row);
+                });
+            });
+        }
+
+        // Load roles from API
+        function loadRoles() {
+            $.get('/api/users/roles', function(roles) {
+                const rolesContainer = $('#rolesContainer');
+                const editRolesContainer = $('#editRolesContainer');
+                rolesContainer.empty();
+                editRolesContainer.empty();
+
+                roles.forEach(role => {
+                    rolesContainer.append(`
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="roles" value="${role.id}" id="role_${role.id}">
+                        <label class="form-check-label" for="role_${role.id}">${role.name}</label>
+                    </div>
+                `);
+
+                    editRolesContainer.append(`
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="roles" value="${role.id}" id="editRole_${role.id}">
+                        <label class="form-check-label" for="editRole_${role.id}">${role.name}</label>
+                    </div>
+                `);
+                });
+            });
+        }
+
+        // Get selected roles from form
+        function getSelectedRoles(formId) {
+            const selectedRoles = [];
+            $(`#${formId} input[name="roles"]:checked`).each(function() {
+                selectedRoles.push({ id: $(this).val() });
+            });
+            return selectedRoles;
+        }
+
+        // Handle edit button click
+        $(document).on('click', '.edit-btn', function() {
+            const userId = $(this).data('id');
+            $.get('/api/users/' + userId, function(user) {
+                $('#editId').val(user.id);
+                $('#editName').val(user.name);
+                $('#editSurname').val(user.surname);
+                $('#editUsername').val(user.username);
+                $('#editPassword').val(user.password);
+
+                // Clear all checkboxes first
+                $('#editUserForm input[name="roles"]').prop('checked', false);
+
+                // Check the roles the user has
+                user.roles.forEach(role => {
+                    $(`#editUserForm input[value="${role.id}"]`).prop('checked', true);
+                });
+
+                $('#editUserModal').modal('show');
+            });
+        });
+    });
+</script>
 </body>
 </html>
